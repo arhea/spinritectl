@@ -72,3 +72,6 @@ If you want to add `spinritectl` as a top level command on your terminal. Simply
 ```bash
 ln -sf ./spinritectl /usr/local/bin/spinritectl
 ```
+
+### Permissions Issues
+If you run into permissions issues run through the guide as `root`. This will create an entirely new instance of your VM with the root user who has access to disks directly.

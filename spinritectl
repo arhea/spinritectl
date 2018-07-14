@@ -1,0 +1,124 @@
+#!/bin/bash -e
+
+VM_NAME="SpinRite"
+VM_PATH=$HOME/SpinRite
+HD_NAME="SpinRite_HDD.vhd"
+
+function spinrite_init() {
+  console_log "Creating SpinRite Folder..."
+  mkdir -p $VM_PATH
+
+  console_log "Creating VM Hard Drive..."
+  if VBoxManage createmedium disk --format VHD --filename $VM_PATH/$HD_NAME --size 500; then
+    console_success "Done!"
+  else
+    console_error "Error creating VM Hard Drive!"
+    exit 1
+  fi
+
+  console_log "Creating VM..."
+  if VBoxManage createvm --name $VM_NAME --ostype "DOS" --register; then
+    console_success "Done!"
+  else
+    console_error "Error creating VM!"
+    exit 1
+  fi
+
+  console_log "Creating VM Storage..."
+  if VBoxManage storagectl $VM_NAME --name "SATA Controller" --add sata --controller IntelAHCI --hostiocache on && VBoxManage storageattach $VM_NAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $VM_PATH/$HD_NAME; then
+    console_success "Done!"
+  else
+    console_error "Error creating the VM Storage!"
+    exit 1
+  fi
+
+  console_log "Attaching SpinRite.iso to VM..."
+  if VBoxManage storagectl $VM_NAME --name "IDE Controller" --add ide --hostiocache on && VBoxManage storageattach $VM_NAME --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $VM_PATH/SpinRite.iso; then
+    console_success "Done!"
+  else
+    console_error "Error attaching the SpinRite.iso!"
+    exit 1
+  fi
+
+  console_log "Configuring VM..."
+  if VBoxManage modifyvm $VM_NAME --ioapic on --boot1 dvd --boot2 disk --boot3 none --boot4 none --memory 32 --cpuexecutioncap 50; then
+    console_success "Done!"
+  else
+    console_error "Error configuring the VM!"
+    exit 1
+  fi
+}
+
+function spinrite_destroy() {
+  console_log "Destroying VM..."
+  VBoxManage unregistervm $VM_NAME --delete
+  rm -f $VM_PATH/*.vhd
+  rm -f $VM_PATH/*.vmdk
+}
+
+function spinrite_start() {
+  console_log "Starting VM..."
+  if VBoxManage startvm $VM_NAME --type gui; then
+    console_success "VM Started!"
+  else
+    console_error "Error starting the VM!"
+  fi
+}
+
+function spinrite_stop() {
+  console_log "Stopping VM..."
+  if VBoxManage controlvm $VM_NAME poweroff; then
+    console_success "VM Stopped!"
+  else
+    console_error "Error stopping the VM!"
+  fi
+}
+
+function spinrite_attach() {
+  local targetdisk=$1
+  local filename=$VM_PATH/TargetDisk.vmdk
+
+  if [ -f $filename ]; then
+    rm -f $filename
+  fi
+
+  if [ "$(uname)" == "Darwin" ]; then
+    diskutil unmountDisk $targetdisk
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    umount $targetdisk
+  fi
+
+  VBoxManage internalcommands createrawvmdk -filename $filename -rawdisk $targetdisk
+  VBoxManage storageattach $VM_NAME --storagectl "IDE Controller" --port 1 --device 0 --type hdd --medium $filename --comment "SpinRite Target Disk"
+
+  if [ "$(uname)" == "Darwin" ]; then
+    diskutil unmountDisk $targetdisk
+  fi
+}
+
+function console_log() {
+  echo -e "\033[1;34m=> $1\033[0m"
+}
+
+function console_success() {
+  echo -e "\033[0;32m=> $1\033[0m"
+}
+
+function console_error() {
+  echo -e "\033[0;31m=> $1\033[0m"
+}
+
+if [ "$1" = "init" ]; then
+  spinrite_init
+elif [ "$1" = "destroy" ]; then
+  spinrite_destroy
+elif [ "$1" = "attach" ]; then
+  spinrite_attach $2
+elif [ "$1" = "start" ]; then
+  spinrite_start
+elif [ "$1" = "stop" ]; then
+  spinrite_stop
+else
+  console_error "Command Not Found"
+  exit 1
+fi

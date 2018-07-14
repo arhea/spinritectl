@@ -1,6 +1,8 @@
 # SpinRite VirtualBox Setup and Configuration
 This guide walks you through creating a VirtualBox Virtual Machine to run SpinRite. It also discusses mounting physical drives into the VM.
 
+_SpinRite is a registered trademark of [Gibson Research Corporation](https://www.grc.com) operated by [Steve Gibson](https://twitter.com/SGgrc)._
+
 ## Guide
 This guide will walk you through getting started with SpinRite and running the virtual machine using VirtualBox.
 

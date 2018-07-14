@@ -75,5 +75,35 @@ If you want to add `spinritectl` as a top level command on your terminal. Simply
 ln -sf ./spinritectl /usr/local/bin/spinritectl
 ```
 
+### How do I get the name of my disk?
+
+## macOS
+macOS has a built in utility called `diskutil`. Usually, external drives on macOS have a disk number greater than 1. For example, a mac with no external drives should look like this after running the following command:
+```bash
+diskutil list
+```
+
+```text
+/dev/disk0 (internal):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                         121.3 GB   disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         120.4 GB   disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +120.4 GB   disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD            99.6 GB    disk1s1
+   2:                APFS Volume Preboot                 23.8 MB    disk1s2
+   3:                APFS Volume Recovery                519.0 MB   disk1s3
+   4:                APFS Volume VM                      1.1 GB     disk1s4
+```
+
+Once you have determined which disk you would like to work on, pass that as a parameter to the `attach` command. It is usually `/dev/disk2`.
+
+## Linux
+On Linux drives are given letters such as `/dev/sda` or `/dev/sdb`. Run `lsblk` to identify which drive is the one you want to work on.
+
 ### Permissions Issues
 If you run into permissions issues run through the guide as `root`. This will create an entirely new instance of your VM with the root user who has access to disks directly.

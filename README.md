@@ -22,7 +22,7 @@ Visit GRC's website to [purchase and download](https://www.grc.com/cs/prepurch.h
 SpinRite is downloaded as a `.exe` file. In order to create a bootable ISO for our VM we need to run SpinRite.
 
 #### Windows
-On Windows simply run the `SpinRite.exe` and click "Create ISO or IMG File" then "Save a Boot Image File"
+On Windows simply run the `SpinRite.exe` and click "Create ISO or IMG File" then "Save a Boot Image File". Place the `SpinRite.iso` in `~/SpinRite/SpinRite.iso`. `spinritectl` expects the file to be located here.
 
 #### macOS or Linux
 
@@ -40,7 +40,7 @@ apt install wine
 wine ~/Downloads/SpinRite.exe
 ```
 
-Then click "Create ISO or IMG File" then "Save a Boot Image File"
+Then click "Create ISO or IMG File" then "Save a Boot Image File". Place the `SpinRite.iso` in `~/SpinRite/SpinRite.iso`. `spinritectl` expects the file to be located here.
 
 ### Running the Virtual Machine
 I have created a simple command line utility to get SpinRite up and running quickly.
